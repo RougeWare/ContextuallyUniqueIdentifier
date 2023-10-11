@@ -1,6 +1,8 @@
 import XCTest
 import AppUniqueIdentifier
 
+
+
 final class AppUniqueIdentifierTests: XCTestCase {
     
     override func setUp() {
@@ -8,7 +10,7 @@ final class AppUniqueIdentifierTests: XCTestCase {
     }
     
     
-    func testUniqueCreation() throws {
+    func testUniqueCreation() {
         XCTAssertEqual(AppUniqueIdentifier.next().description, "0")
         XCTAssertEqual(AppUniqueIdentifier.next().description, "1")
         XCTAssertEqual(AppUniqueIdentifier.next().description, "2")
@@ -48,6 +50,10 @@ final class AppUniqueIdentifierTests: XCTestCase {
     
     
     func testDecode() throws {
+        let firstId = AppUniqueIdentifier.next()
+        
+        XCTAssertEqual(firstId.description, "0")
+        
         let decoder = JSONDecoder()
         let dax = try decoder.decode(Person.self, from: """
         {
@@ -57,7 +63,6 @@ final class AppUniqueIdentifierTests: XCTestCase {
         """.data(using: .utf8)!)
         
         let anotherId = AppUniqueIdentifier.next()
-        
         
         XCTAssertEqual(dax.id.description, "0")
         XCTAssertEqual(dax.name, "Dax")
@@ -86,11 +91,40 @@ final class AppUniqueIdentifierTests: XCTestCase {
         XCTAssertEqual(AppUniqueIdentifier.next().description, "1")
         XCTAssertEqual(AppUniqueIdentifier.next().description, "3")
     }
+    
+    
+    
+    func testRegions() {
+        XCTAssertEqual(AppUniqueIdentifier.next().region, .generalUse)
+        XCTAssertEqual(AppUniqueIdentifier.next().region, .generalUse)
+        XCTAssertEqual(AppUniqueIdentifier.next().region, .generalUse)
+        
+        XCTAssertTrue(AppUniqueIdentifier.Region.generalUse.contains(.next()))
+        XCTAssertTrue(AppUniqueIdentifier.Region.generalUse.contains(.next()))
+        XCTAssertTrue(AppUniqueIdentifier.Region.generalUse.contains(.next()))
+        
+        XCTAssertEqual(AppUniqueIdentifier.privateUse(offset: 0).region, .privateUse)
+        XCTAssertEqual(AppUniqueIdentifier.privateUse(offset: 1).region, .privateUse)
+        XCTAssertEqual(AppUniqueIdentifier.privateUse(offset: 3).region, .privateUse)
+        
+        XCTAssertTrue(AppUniqueIdentifier.Region.privateUse.contains(.privateUse(offset: 4)))
+        XCTAssertTrue(AppUniqueIdentifier.Region.privateUse.contains(.privateUse(offset: 5)))
+        XCTAssertTrue(AppUniqueIdentifier.Region.privateUse.contains(.privateUse(offset: 6)))
+        
+        XCTAssertEqual(AppUniqueIdentifier.error.region, .error)
+        XCTAssertTrue(AppUniqueIdentifier.Region.error.contains(.error))
+        XCTAssertTrue(AppUniqueIdentifier.error.isError)
+    }
 }
 
 
 
 struct Person: Identifiable, Codable {
-    var id: AppUniqueIdentifier = .next()
+    var id: AppUniqueIdentifier
     let name: String
+    
+    init(id: AppUniqueIdentifier = .next(), name: String) {
+        self.id = id
+        self.name = name
+    }
 }
