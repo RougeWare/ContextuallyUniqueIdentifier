@@ -1,0 +1,32 @@
+{
+  "pins" : [
+    {
+      "identity" : "swift-function-tools",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RougeWare/Swift-Function-Tools.git",
+      "state" : {
+        "revision" : "a854f4ed89b7e404019b5a09d24e067acc15432d",
+        "version" : "1.2.4"
+      }
+    },
+    {
+      "identity" : "swift-lazy-containers",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RougeWare/Swift-Lazy-Containers.git",
+      "state" : {
+        "revision" : "360a35c98992fc53739e884fb0c48e988710fa92",
+        "version" : "4.1.0"
+      }
+    },
+    {
+      "identity" : "swift-simple-logging",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RougeWare/Swift-Simple-Logging.git",
+      "state" : {
+        "revision" : "efdee028f383b0f3c39646a76e16bdd30693f53b",
+        "version" : "0.5.2"
+      }
+    }
+  ],
+  "version" : 2
+}
