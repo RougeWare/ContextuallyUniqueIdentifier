@@ -3,7 +3,7 @@
 
 An AUID is an identifier which is unique to a runtime andor save data. While UUID is good for general use, this is good specifically for a single session.
 
-The philosophy behind this comes from a desire to have a unique identifier assigned to various objects, but use as little data as possible when serialized. In fact, this was invented for [Rent Split](https://split.rent), a webapp which stored no data at all locally, so the share URLs contained the entire app state; that's why the IDs needed to be as short as possible.
+The philosophy behind this comes from a desire to have a unique identifier assigned to various objects, but use as little data as possible when serialized. In fact, this was invented for [Rent Split](https://split.rent), a webapp which stored no data at all server-side, so the share URLs contained the entire app state; that's why the IDs needed to be as short as possible.
 
 This is only guaranteed to be unique per-session if used correctly. Any further uniqueness is not guaranteed. You might think of these as Instance-Unique Identifiers if that helps.
 
