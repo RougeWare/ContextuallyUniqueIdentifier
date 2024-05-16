@@ -4,12 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "AppUniqueIdentifier",
+    name: "ContextuallyUniqueIdentifier",
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
+            name: "COID",
+            targets: ["COID"]),
+        .library(
             name: "AppUniqueIdentifier",
-            targets: ["AppUniqueIdentifier"]),
+            targets: ["COID"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -19,12 +22,12 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "AppUniqueIdentifier",
+            name: "COID",
             dependencies: [
                 .product(name: "SimpleLogging", package: "Swift-Simple-Logging"),
             ]),
         .testTarget(
-            name: "AppUniqueIdentifierTests",
-            dependencies: ["AppUniqueIdentifier"]),
+            name: "ContextuallyUniqueIdentifierTests",
+            dependencies: ["COID"]),
     ]
 )

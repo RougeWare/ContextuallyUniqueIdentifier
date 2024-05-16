@@ -1,5 +1,5 @@
 //
-//  AppUniqueIdentifier.swift
+//  ContextuallyUniqueIdentifier.swift
 //
 //
 //  Created by Ky Leggiero on 2022-07-08.
@@ -11,13 +11,20 @@ import SimpleLogging
 
 
 
+public typealias COID = ContextuallyUniqueIdentifier
+
+@available(*, deprecated, renamed: "COID", message: "In version 1.2.0, AppUniqueIdentifier was renamed to ContextuallyUniqueIdentifier (COID) to clarify its usage")
+public typealias AppUniqueIdentifier = COID
+
+
+
 /// An identifier which is unique to this app's runtime.
 ///
 /// This is only guaranteed to be unique in this app's runtime. Any further uniqueness is not guaranteed.
 ///
 /// App-Unique Identifiers are arranged into four groups:
 /// 1. ✅ **General-use** – A large amount of IDs which can be generated and registered. Though finite, it is a large enough range that most applications should not exceed its limit if using these APIs correctly. **If your application is using enough IDs that this is too few, then this is not the package for you. I recommend using UUIDs insted.** But seriously, if you use up all these IDs, that's Exbibytes of data; don't worry about it.
-/// 2. 🔒 **Unused** – A large amount of IDs which have not been allocated for any use. These cannot be used in any way. Future versions of AUID might introduce usage of these. This blockage is to allow future changes to be nondestructive and backwards-compatible
+/// 2. 🔒 **Unused** – A large amount of IDs which have not been allocated for any use. These cannot be used in any way. Future versions of COID might introduce usage of these. This blockage is to allow future changes to be nondestructive and backwards-compatible
 /// 3. *️⃣ **Private-Use** – A small amount of IDs which must be manually and specifically requested. Like the Unicode private-use plane, this region of IDs has no specific intent/meaning, and allows the developer to ascribe specific meanings to each. The small size of this range means that there are no requests to generate a "next" one, and each specific one should be carefully chosen by the developer.
 /// 4. ❗️ **Error** – A single ID which signifies that an error has occurred
 ///
@@ -34,7 +41,7 @@ import SimpleLogging
 /// 🔒 🔒 🔒 🔒 🔒 🔒 🔒 🔒 🔒 🔒
 /// 🔒 🔒 🔒 🔒 🔒 🔒 🔒 *️⃣ *️⃣ ❗️
 /// ```
-public struct AppUniqueIdentifier {
+public struct ContextuallyUniqueIdentifier {
     private let rawValue: ID
 }
 
@@ -44,7 +51,7 @@ public struct AppUniqueIdentifier {
 
 // MARK: Initialization
 
-fileprivate extension AppUniqueIdentifier {
+fileprivate extension ContextuallyUniqueIdentifier {
     
     /// Creates a new app-unique ID with the given value. This also registers it immediately, to ensure all app-unique IDs are unique across all others
     ///
@@ -59,7 +66,7 @@ fileprivate extension AppUniqueIdentifier {
 
 // MARK: Static registry
 
-fileprivate extension AppUniqueIdentifier {
+fileprivate extension ContextuallyUniqueIdentifier {
     
     /// The IDs which are currently in use in this runtime
     private static var __idRegistry = Set<ID>()
@@ -141,7 +148,7 @@ fileprivate extension AppUniqueIdentifier {
 
 // MARK: - API
 
-public extension AppUniqueIdentifier {
+public extension ContextuallyUniqueIdentifier {
     
     /// Finds, registers, and returns the next available ID which is not the same as any currently-existing IDs.
     ///
@@ -220,18 +227,22 @@ public extension AppUniqueIdentifier {
 ///
 /// ```
 private enum RegionRanges {
-    static let allPossibleValues: ClosedRange<AppUniqueIdentifier.ID> = .min ... .max
+    static let allPossibleValues: ClosedRange<ID> = .min ... .max
     
-    static let generalUse: Range<AppUniqueIdentifier.ID> = .min ..< .max/2
-    static let unused: Range<AppUniqueIdentifier.ID> = generalUse.upperBound ..< privateUse.lowerBound
-    static let privateUse: Range<AppUniqueIdentifier.ID> = .max-AppUniqueIdentifier.ID(UInt8.max) ..< .max
+    static let generalUse: Range<ID> = .min ..< .max/2
+    static let unused: Range<ID> = generalUse.upperBound ..< privateUse.lowerBound
+    static let privateUse: Range<ID> = .max-ID(UInt8.max) ..< .max
     
-    static let error = AppUniqueIdentifier.ID.max
+    static let error = ID.max
+    
+    
+    
+    typealias ID = COID.ID
 }
 
 
 
-public extension AppUniqueIdentifier {
+public extension ContextuallyUniqueIdentifier {
     
     
     /// Returns an identifier from the private use region at the given offset
@@ -247,25 +258,25 @@ public extension AppUniqueIdentifier {
     }
     
     
-    /// The error AUID
+    /// The error COID
     ///
-    /// This special value is the only one in the error region, and only means that a serious problem occurred (e.g. could not allocate an AUID).
-    /// This exists to allow objects to still exist while requiring a non-nil AUID field, even after a serious problem occurred.
+    /// This special value is the only one in the error region, and only means that a serious problem occurred (e.g. could not allocate an COID).
+    /// This exists to allow objects to still exist while requiring a non-nil COID field, even after a serious problem occurred.
     static let error = Self(rawValue: RegionRanges.error)
     
     
-    /// The region this AUID belongs to. See the documentation for ``AppUniqueIdentifier`` for more information
+    /// The region this COID belongs to. See the documentation for ``ContextuallyUniqueIdentifier`` for more information
     ///
-    /// Each AUID belongs to exactly one region, so this is deterministic for any given AUID.
+    /// Each COID belongs to exactly one region, so this is deterministic for any given COID.
     @inline(__always)
     var region: Region {
         Region(of: self)
     }
     
     
-    /// Determines whether or not this is the error AUID.
+    /// Determines whether or not this is the error COID.
     ///
-    /// The error AUID has no inherent meaning; it just means that a serious problem occurred regarding App-Unique Identifiers
+    /// The error COID has no inherent meaning; it just means that a serious problem occurred regarding App-Unique Identifiers
     @inline(__always)
     var isError: Bool {
         self == .error
@@ -273,54 +284,54 @@ public extension AppUniqueIdentifier {
     
     
     
-    /// An AUID region. See the documentation for ``AppUniqueIdentifier`` for more information
+    /// An COID region. See the documentation for ``ContextuallyUniqueIdentifier`` for more information
     enum Region {
         
-        /// The General-Use region. See the documentation for ``AppUniqueIdentifier`` for more information
+        /// The General-Use region. See the documentation for ``ContextuallyUniqueIdentifier`` for more information
         case generalUse
         
-        /// The unused region. See the documentation for ``AppUniqueIdentifier`` for more information
+        /// The unused region. See the documentation for ``ContextuallyUniqueIdentifier`` for more information
         case unused
         
-        /// The Private-Use region. See the documentation for ``AppUniqueIdentifier`` for more information
+        /// The Private-Use region. See the documentation for ``ContextuallyUniqueIdentifier`` for more information
         case privateUse
         
-        /// The Error region. See the documentation for ``AppUniqueIdentifier`` for more information
+        /// The Error region. See the documentation for ``ContextuallyUniqueIdentifier`` for more information
         case error
     }
 }
 
 
 
-public extension AppUniqueIdentifier.Region {
+public extension ContextuallyUniqueIdentifier.Region {
     
     /// Determines whether this region contains the given identifier.
     ///
-    /// Each AUID belongs to exactly one region. So when this returns `true` for one AUID, all other regions return `false`
+    /// Each COID belongs to exactly one region. So when this returns `true` for one COID, all other regions return `false`
     ///
     /// - Parameter id: Any App-Unique Identifier to check against this range
     ///
     /// - Returns: `true` iff this region contains that ID
-    func contains(_ id: AppUniqueIdentifier) -> Bool {
+    func contains(_ id: ContextuallyUniqueIdentifier) -> Bool {
         range.contains(id.rawValue)
     }
 }
 
 
 
-extension AppUniqueIdentifier.Region: CaseIterable {
+extension ContextuallyUniqueIdentifier.Region: CaseIterable {
 }
 
 
 
-private extension AppUniqueIdentifier.Region {
+private extension ContextuallyUniqueIdentifier.Region {
     
-    init(of id: AppUniqueIdentifier) {
+    init(of id: ContextuallyUniqueIdentifier) {
         self = Self.allCases.first { $0.contains(id) } ?? .error
     }
     
     
-    var range: any RangeExpression<AppUniqueIdentifier.ID> {
+    var range: any RangeExpression<ContextuallyUniqueIdentifier.ID> {
         switch self {
         case .generalUse: RegionRanges.generalUse
         case .unused:     RegionRanges.unused
@@ -334,7 +345,7 @@ private extension AppUniqueIdentifier.Region {
 
 // MARK: - Conformance
 
-extension AppUniqueIdentifier: Decodable {
+extension ContextuallyUniqueIdentifier: Decodable {
     public init(from decoder: Decoder) throws {
         self.init(id: try decoder.singleValueContainer().decode(ID.self))
     }
@@ -342,7 +353,7 @@ extension AppUniqueIdentifier: Decodable {
 
 
 
-extension AppUniqueIdentifier: Encodable {
+extension ContextuallyUniqueIdentifier: Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(id)
@@ -351,7 +362,7 @@ extension AppUniqueIdentifier: Encodable {
 
 
 
-extension AppUniqueIdentifier: LosslessStringConvertible {
+extension ContextuallyUniqueIdentifier: LosslessStringConvertible {
     
     public init?(_ description: String) {
         guard let id = ID(description) else {
@@ -368,7 +379,7 @@ extension AppUniqueIdentifier: LosslessStringConvertible {
 
 
 
-extension AppUniqueIdentifier: Identifiable {
+extension ContextuallyUniqueIdentifier: Identifiable {
     
     @inline(__always)
     public var id: ID { rawValue }
@@ -380,12 +391,12 @@ extension AppUniqueIdentifier: Identifiable {
 
 
 
-extension AppUniqueIdentifier: Hashable {}
+extension ContextuallyUniqueIdentifier: Hashable {}
 
 
 
-extension AppUniqueIdentifier: Comparable {
-    public static func < (lhs: AppUniqueIdentifier, rhs: AppUniqueIdentifier) -> Bool {
+extension ContextuallyUniqueIdentifier: Comparable {
+    public static func < (lhs: ContextuallyUniqueIdentifier, rhs: ContextuallyUniqueIdentifier) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 }
